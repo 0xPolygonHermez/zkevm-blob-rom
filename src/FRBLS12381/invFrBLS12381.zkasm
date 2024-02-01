@@ -1,0 +1,32 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  PRE: The input is not zero
+;; POST: The result is in the range [0,BLS12_381_R)
+;;
+;; invFrBLS12381:
+;;             in: A ∈ [1, 2²⁵⁶-1]
+;;             out: A = A⁻¹ (mod BLS12_381_R) ∈ Fr
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+VAR GLOBAL invFrBLS12381_tmp
+
+invFrBLS12381:
+        ; 1] Compute and check the inverse over Z
+        ; A·A⁻¹ + [0] = [D]·2²⁵⁶ + [E]
+        ${var _invFrBLS12381_A = frBLS12_381inv(A)} => B :MSTORE(invFrBLS12381_tmp)
+        0 => C
+        $${var _invFrBLS12381_AB = A * _invFrBLS12381_A}
+        ${_invFrBLS12381_AB >> 256} => D
+        ${_invFrBLS12381_AB} => E :ARITH
+
+        ; 2] Check it over Fr, that is, it must be satisfied that:
+        ; [BLS12_381_R]·[(A·A⁻¹) / BLS12_381_R] + [1] = D·2²⁵⁶ + E
+        %BLS12_381_R => A
+        ${_invFrBLS12381_AB / const.BLS12_381_R} => B   ; quotient
+        1n => C                                         ; residue
+        E :ARITH
+
+        ; 3] Check that the inverse is lower than BLS12_381_R
+        A => B
+        $ => A          :MLOAD(invFrBLS12381_tmp)
+        1               :LT, RETURN

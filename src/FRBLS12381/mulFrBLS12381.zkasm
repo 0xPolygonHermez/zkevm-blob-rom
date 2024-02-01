@@ -1,0 +1,29 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; POST: The result is in the range [0,BLS12_381_R)
+;;
+;; mulFrBLS12381:
+;;             in: A,B ∈ [0, 2²⁵⁶-1]
+;;             out: C = A·B (mod BLS12_381_R) ∈ Fr
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+mulFrBLS12381:
+        ; 1] Compute and check the sum over Z
+        ; A·B + [0] = [D]·2²⁵⁶ + [E]
+        0 => C
+        $${var _mulFrBLS12381_AB = A*B}
+        ${_mulFrBLS12381_AB >> 256} => D
+        ${_mulFrBLS12381_AB & ((1 << 256) - 1)} => E :ARITH
+
+        ; 2] Check it over Fr, that is, it must be satisfied that:
+        ; [BLS12_381_R]·[(A·B) / r] + [C / r] = D·2²⁵⁶ + E
+        ; where C < BLS12_381_R
+        %BLS12_381_R => A
+        ${_mulFrBLS12381_AB / const.BLS12_381_R} => B        ; quotient
+        ${_mulFrBLS12381_AB % const.BLS12_381_R} => C        ; residue
+        E :ARITH
+
+        ; 3] Check that the residue is lower than BLS12_381_R
+        A => B
+        C => A
+        1       :LT, RETURN
