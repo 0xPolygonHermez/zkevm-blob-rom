@@ -1,11 +1,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; PRE: The degree d of the polynomial is smaller than 4096
+;; PRE: z is in the range [0, r-1]
 ;;
 ;; polevalFrBLS12381:
-;;          input: A polynomial f(X) = ∑ᵢ f(ωⁱ)·Lᵢ(X) in Fr[X] represented in the Lagrange basis
+;;          input: A polynomial f(X) = ∑ᵢ f(ωⁱ)·Lᵢ(X) in Fr[X], represented in the Lagrange basis,
 ;;                 with i ∈ [4096] and an evaluation point z ∈ Fr
 ;;          output: The evaluation:
-;;                          f(z) = (zᵈ-1)/d·∑ᵢ fᵢ·ωⁱ/(z-ωⁱ) ∈ Fr
+;;                          f(z) = (z⁴⁰⁹⁶-1)/4096·∑ᵢ fᵢ·ωⁱ/(z-ωⁱ) ∈ Fr
 ;;
 ;; NOTE: Lᵢ are the Lagrange polynomials on the multiplicative subgroup of Fr of order 4096
 ;;       and ω is the 4096-th primitive root of unity in Fr
@@ -25,11 +25,11 @@ VAR GLOBAL polevalFrBLS12381_RR
 polevalFrBLS12381:
         RR              :MSTORE(polevalFrBLS12381_RR)
 
-        ; f(z) = (zᵈ-1)/d·∑ᵢ fᵢ·ωⁱ/(z-ωⁱ)
+        ; f(z) = (z⁴⁰⁹⁶-1)/4096·∑ᵢ fᵢ·ωⁱ/(z-ωⁱ)
 
-        ; 1] Compute (zᵈ-1)/d
+        ; 1] Compute (z⁴⁰⁹⁶-1)/4096
         $ => A          :MLOAD(polevalFrBLS12381_z)
-        $ => A          :MLOAD(polevalFrBLS12381_pol_degree)
+        $ => A          :MLOAD(polevalFrBLS12381_pol_eval)
 
 polevalFrBLS12381_end:
         $ => RR         :MLOAD(polevalFrBLS12381_RR)

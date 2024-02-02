@@ -7,7 +7,8 @@
     "build": "mkdir -p build && npx zkasm src/main.zkasm -o build/blob-rom.json && npm run build:metadata",
     "build:metadata": "echo \"COMMIT=$(git rev-parse HEAD)\nSHA256SUM=$(sha256sum ./build/blob-rom.json)\" > build/metadata-blob-rom.txt",
     "eslint": "npx eslint js/**.js",
-    "eslint:fix": "npx eslint js/**.js --fix"
+    "eslint:fix": "npx eslint js/**.js --fix",
+    "test:zkasm": "node tools/run-tests-zkasm.js ./test --helper js/helper.js"
   },
   "keywords": [
     "zkrom",
@@ -30,6 +31,7 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@0xpolygonhermez/zkevm-proverjs": "github:0xPolygonHermez/zkevm-proverjs#feature/BLS-field",
     "chai": "^4.3.6",
     "chalk": "^3.0.0",
     "eslint": "^8.25.0",

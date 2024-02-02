@@ -19,11 +19,12 @@
 ; # Compute the subgroup of 4096-th roots of unity
 ; acc = Fr.one()
 ; for i in range(4096):
-;     acc = acc*g12
 ;     print("\t{:<67} => B\t\t\t :RETURN".format(hex(acc) + "n"))
+;     acc = acc*g12
 ; ----------------------------------------
 
 rootsOfUnity4096FrBLS12381:
+	0x1n                                                                => B			 :RETURN
 	0x564c0a11a0f704f4fc3e8acfe0f8245f0ad1347b378fbf96e206da11a5d36306n => B			 :RETURN
 	0x6d031f1b5c49c83409f1ca610a08f16655ea6811be9c622d4a838b5d59cd79e5n => B			 :RETURN
 	0x36a0694837b9391d085fa60b9f017e70697bf2539257c17e7aad249861212753n => B			 :RETURN
@@ -4119,4 +4120,3 @@ rootsOfUnity4096FrBLS12381:
 	0x2229dd16b97880c226a96b6d8623b90e8a775193a915287b84658d7d1fba4133n => B			 :RETURN
 	0x55612c879036d62fae65b5bdd485b39aa954d02ff707ac89dc982deab639eb06n => B			 :RETURN
 	0x391b2856c609b4784ae25ffab9dc59865046d17864183203961a252dd8543362n => B			 :RETURN
-	0x1n                                                                => B			 :RETURN
