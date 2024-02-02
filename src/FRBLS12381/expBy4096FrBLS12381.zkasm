@@ -1,0 +1,49 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; POST: The result is in the range [0,BLS12_381_R) because if falls back to Fr arithmetic
+;;
+;; expBy4096FrBLS12381:
+;;             in: A ∈ [0, 2²⁵⁶-1]
+;;             out: A = A⁴⁰⁹⁶ (mod BLS12_381_R) ∈ Fr
+;;
+;; Note: 4096 in binary is 10000 0000 0000
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; label to avoid the extra checks for zero and one
+VAR GLOBAL expBy4096FrBLS12381_input_is_not_zero_or_one
+
+VAR GLOBAL expBy4096FrBLS12381_RR
+
+expBy4096FrBLS12381:
+        RR              :MSTORE(expBy4096FrBLS12381_RR)
+
+        $               :MLOAD(expBy4096FrBLS12381_input_is_not_zero_or_one), JMPNZ(expBy4096FrBLS12381_prepare)
+
+        ; Is A = 0?
+        0n => B
+        $       :EQ, JMPC(expBy4096FrBLS12381_input_is_zero)
+
+        ; Is A = 1?
+        1n => B
+        $       :EQ, JMPC(expBy4096FrBLS12381_input_is_one)
+
+expBy4096FrBLS12381_prepare:
+        12 => RCX       :JMP(expBy4096FrBLS12381_loop)
+
+; Begin of branching
+expBy4096FrBLS12381_input_is_zero:
+        ; 0⁴⁰⁹⁶ = 0
+        0n => A         :JMP(expBy4096FrBLS12381_end)
+
+expBy4096FrBLS12381_input_is_one:
+        ; 1⁴⁰⁹⁶ = 1
+        1n => A         :JMP(expBy4096FrBLS12381_end)
+; End of branching
+
+expBy4096FrBLS12381_loop:
+        :CALL(squareFrBLS12381)
+        RCX - 1 => RCX  :JMPZ(expBy4096FrBLS12381_end, expBy4096FrBLS12381_loop)
+
+expBy4096FrBLS12381_end:
+        $ => RR         :MLOAD(expBy4096FrBLS12381_RR)
+                        :RETURN
+

@@ -35,7 +35,7 @@ function genRandomInOut(opname) {
             break;
         case "expBy4096":
             z = FrBLS12_381.exp(x, 4096n);
-            // return { opname, x, z };
+            console.log(`\t${x}n => A\n\t:CALL(${opname}FrBLS12381)\n\t${z}n\t:ASSERT\n`);
             break;
         default:
             throw new Error("Invalid opname");

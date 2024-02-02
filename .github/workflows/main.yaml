@@ -19,3 +19,5 @@ jobs:
           node-version: 20
       - name: eslint
         run: npm run eslint
+      - name: run zkasm tests
+        run: npm run test:zkasm

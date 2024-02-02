@@ -73,7 +73,6 @@ async function runTest(pathTest, cmPols) {
                 throw new Error(`Not found helper on ${helper} or ${helperFile}`);
             }
             const fullPathHelper = path.resolve(helperFile);
-            console.log(`Using helper ${helperFile} on ${fullPathHelper}`);
             const clhelper = require(fullPathHelper);
             config.helpers.push(new clhelper());
         }

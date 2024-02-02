@@ -1,5 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; PRE: z is in the range [0, r-1]
+;;  PRE: z is in the range [0,BLS12_381_R) and all evals are set in polevalFrBLS12381_pol_eval (including the case it is sparse)
+;; POST: The result is in the range [0,BLS12_381_R)
 ;;
 ;; polevalFrBLS12381:
 ;;          input: A polynomial f(X) = ∑ᵢ f(ωⁱ)·Lᵢ(X) in Fr[X], represented in the Lagrange basis,
@@ -11,25 +12,80 @@
 ;;       and ω is the 4096-th primitive root of unity in Fr
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; TODO: Set z to register A and result to some register for step saving
+
 INCLUDE "./rootsOfUnity4096FrBLS12381.zkasm"
 
 VAR GLOBAL polevalFrBLS12381_pol_eval[4096]
 VAR GLOBAL polevalFrBLS12381_z
 
+; label to indicate whether z is a root of unity
+VAR GLOBAL polevalFrBLS12381_z_is_root_of_unity
+
+VAR GLOBAL polevalFrBLS12381_accum
+VAR GLOBAL polevalFrBLS12381_inv_i
+
 VAR GLOBAL polevalFrBLS12381_result
 
 VAR GLOBAL polevalFrBLS12381_RR
 
-;TODO: Treat separately the case where z comes from the set of 4096-th roots of unity
+; NOTE: If z is a root of unity, say ωⁱ, we should return the i-th evaluation of the polynomial
 
 polevalFrBLS12381:
         RR              :MSTORE(polevalFrBLS12381_RR)
 
+        0               :MSTORE(polevalFrBLS12381_z_is_root_of_unity) ; Initialize the flag
+
         ; f(z) = (z⁴⁰⁹⁶-1)/4096·∑ᵢ fᵢ·ωⁱ/(z-ωⁱ)
 
         ; 1] Compute (z⁴⁰⁹⁶-1)/4096
+        $ => A          :MLOAD(polevalFrBLS12381_z), CALL(expBy4096FrBLS12381)
+
+        ; Check whether z is a root of unity.
+        1n => B
+        $               :EQ, JMPNC(__polevalFrBLS12381_z_is_not_root_of_unity)
+        1n              :MSTORE(polevalFrBLS12381_z_is_root_of_unity)
+                        __polevalFrBLS12381_z_is_not_root_of_unity:
+
+        1n => C         :CALL(subFrBLS12381)
+        C => A
+        %BLS12_381_R_4096_inv => B :CALL(mulFrBLS12381)
+        C                       :MSTORE(polevalFrBLS12381_result)
+
+        ; 2] Compute ∑ᵢ fᵢ·ωⁱ/(z-ωⁱ)
+
+        0        :MSTORE(polevalFrBLS12381_accum) ; Initialize the accumulator
+        4095 => RCX
+polevalFrBLS12381_loop:
+        RCX => E
+        ; 2.1] Compute 1/(z-ωⁱ)
         $ => A          :MLOAD(polevalFrBLS12381_z)
-        $ => A          :MLOAD(polevalFrBLS12381_pol_eval)
+                        :CALL(@rootsOfUnity4096FrBLS12381 + E)
+                        :CALL(subFrBLS12381)
+        ; TODO: Finish this part
+        ; If z is a root of unity, say ωⁱ, the following call will return 0.
+        ; We use this fact to finalize the execution and return the i-th evaluation of the polynomial
+        C => A          :CALL(invFrBLS12381)
+        A               :MSTORE(polevalFrBLS12381_inv_i)
+
+        ; 2.2] Compute fᵢ·ωⁱ and multiply by 1/(z-ωⁱ)
+        RCX => E
+        $ => A          :MLOAD(polevalFrBLS12381_pol_eval + E)
+                        :CALL(@rootsOfUnity4096FrBLS12381 + E)
+        C => B          :CALL(mulFrBLS12381)
+        $ => B          :MLOAD(polevalFrBLS12381_inv_i), CALL(mulFrBLS12381)
+
+        ; 2.3] Accumulate the i-th term
+        $ => A          :MLOAD(polevalFrBLS12381_accum), CALL(addFrBLS12381)
+        C               :MSTORE(polevalFrBLS12381_accum)
+
+        RCX - 1 => RCX :JMPN(polevalFrBLS12381_last_mul, polevalFrBLS12381_loop)
+
+polevalFrBLS12381_last_mul:
+        ; 3] Multiply the accumulator by (z⁴⁰⁹⁶-1)/4096
+        $ => A          :MLOAD(polevalFrBLS12381_accum)
+        $ => B          :MLOAD(polevalFrBLS12381_result), CALL(mulFrBLS12381)
+        C               :MSTORE(polevalFrBLS12381_result)
 
 polevalFrBLS12381_end:
         $ => RR         :MLOAD(polevalFrBLS12381_RR)
