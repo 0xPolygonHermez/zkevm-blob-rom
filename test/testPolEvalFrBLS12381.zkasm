@@ -51,7 +51,7 @@ start:
         -1          :MSTORE(lastHashKId)
         -1          :MSTORE(lastHashPId)
 
-INCLUDE "./examplePol.zkasm"
+INCLUDE "./examplePol.ignore.zkasm"
 
         ; 1] Edge case tests (roots of unity evaluation)
         ; 1.1] 1st root of unity

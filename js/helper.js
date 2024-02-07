@@ -26,19 +26,43 @@ module.exports = class myHelper {
     }
 
     /**
-     * Computes the inverse of the given element of the BLS12-381 scalar field.
+     * Checks if the given element of the BLS12-381 scalar field is a 4096-th root of unity.
      * @param ctx - Context.
      * @param tag - Tag.
     */
-    eval_checkZ4096Root(ctx, tag) {
+    eval_check4096Root(ctx, tag) {
         const ctxFullFe = { ...ctx, fullFe: true };
         const z = this.evalCommand(ctxFullFe, tag.params[0]);
+
+        for (let i = 0; i < this.blobSize; i++) {
+            const rooti = BigInt(rootsOfUnity4096[i]);
+            if (z === rooti) {
+                ctx["BLS12_381Root"] = {z, index: i};
+                return 1n;
+            }
+        }
+        return 0n;
+    }
+
+    /**
+     * Returns the index of the given element of the BLS12-381 scalar field if it is a 4096-th root of unity.
+     * @param ctx - Context.
+     * @param tag - Tag.
+    */
+    eval_get4096RootIndex(ctx, tag) {
+        const ctxFullFe = { ...ctx, fullFe: true };
+        const z = this.evalCommand(ctxFullFe, tag.params[0]);
+
+        if (ctx["BLS12_381Root"]?.z === z) {
+            return ctx["BLS12_381Root"].index;
+        }
+
         for (let i = 0; i < this.blobSize; i++) {
             const rooti = BigInt(rootsOfUnity4096[i]);
             if (z === rooti) {
                 return i;
             }
         }
-        return this.blobSize; // It doen't matter what we return here, as long as we return some number.
+        throw new Error("Root not found");
     }
 };
