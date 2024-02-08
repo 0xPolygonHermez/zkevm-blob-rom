@@ -23,7 +23,7 @@ async function main() {
     const cmPols = await compilePil();
 
     // Get all zkasm files
-    const pathZkasm = path.join(process.cwd(), process.argv[2]);
+    const pathZkasm = path.join(__dirname, '..', process.argv[2]);
     const files = await getTestFiles(pathZkasm);
 
     let wasFailed = false;
