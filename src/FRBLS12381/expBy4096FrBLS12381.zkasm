@@ -9,14 +9,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; label to avoid the extra checks for zero and one
-VAR GLOBAL expBy4096FrBLS12381_input_is_not_zero_or_one
+VAR GLOBAL expBy4096FrBLS12381_input_is_not_zero_nor_one
 
 VAR GLOBAL expBy4096FrBLS12381_RR
 
 expBy4096FrBLS12381:
         RR              :MSTORE(expBy4096FrBLS12381_RR)
 
-        $               :MLOAD(expBy4096FrBLS12381_input_is_not_zero_or_one), JMPNZ(expBy4096FrBLS12381_prepare)
+        $               :MLOAD(expBy4096FrBLS12381_input_is_not_zero_nor_one), JMPNZ(expBy4096FrBLS12381_compute)
 
         ; Is A = 0?
         0n => B
@@ -24,10 +24,7 @@ expBy4096FrBLS12381:
 
         ; Is A = 1?
         1n => B
-        $       :EQ, JMPC(expBy4096FrBLS12381_input_is_one)
-
-expBy4096FrBLS12381_prepare:
-        12 => RCX       :JMP(expBy4096FrBLS12381_loop)
+        $       :EQ, JMPC(expBy4096FrBLS12381_input_is_one, expBy4096FrBLS12381_compute)
 
 ; Begin of branching
 expBy4096FrBLS12381_input_is_zero:
@@ -39,9 +36,45 @@ expBy4096FrBLS12381_input_is_one:
         1n => A         :JMP(expBy4096FrBLS12381_end)
 ; End of branching
 
-expBy4096FrBLS12381_loop:
+expBy4096FrBLS12381_compute:
+
+        ; Note that 4096 = 2^12, so computing A⁴⁰⁹⁶ consists of 12 squarings
+
+        ; 1/12
         :CALL(squareFrBLS12381)
-        RCX - 1 => RCX  :JMPZ(expBy4096FrBLS12381_end, expBy4096FrBLS12381_loop)
+
+        ; 2/12
+        :CALL(squareFrBLS12381)
+
+        ; 3/12
+        :CALL(squareFrBLS12381)
+
+        ; 4/12
+        :CALL(squareFrBLS12381)
+
+        ; 5/12
+        :CALL(squareFrBLS12381)
+
+        ; 6/12
+        :CALL(squareFrBLS12381)
+
+        ; 7/12
+        :CALL(squareFrBLS12381)
+
+        ; 8/12
+        :CALL(squareFrBLS12381)
+
+        ; 9/12
+        :CALL(squareFrBLS12381)
+
+        ; 10/12
+        :CALL(squareFrBLS12381)
+
+        ; 11/12
+        :CALL(squareFrBLS12381)
+
+        ; 12/12
+        :CALL(squareFrBLS12381)
 
 expBy4096FrBLS12381_end:
         $ => RR         :MLOAD(expBy4096FrBLS12381_RR)

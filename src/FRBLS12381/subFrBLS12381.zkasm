@@ -1,4 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  PRE: A,C are assumed to be in the range [0,BLS12_381_R)
 ;; POST: The result is in the range [0,BLS12_381_R)
 ;;
 ;; subFrBLS12381:
@@ -8,23 +9,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 subFrBLS12381:
-        ; 1] Compute and check the sub over Z
-        ; A·[1] + [BLS12_381_R-C] = [D]·2²⁵⁶ + [E]
-        1 => B
-        ${const.BLS12_381_R - C} => C
-        $${var _subFrBLS12381_AC = A + C}
-        ${_subFrBLS12381_AC >> 256} => D
-        ${_subFrBLS12381_AC & ((1 << 256) - 1)} => E :ARITH
+        C => B
+        $ => C  :SUB, JMPC(subFrBLS12381_add_alias)
+                :RETURN
+subFrBLS12381_add_alias:
+        ; if A < C, then we must compute A + BLS12_381_R - C
 
-        ; 2] Check it over Fr, that is, it must be satisfied that:
-        ; [BLS12_381_R]·[(A - C) / r] + [(A - C) % r] = D·2²⁵⁶ + E
-        ; where C < BLS12_381_R
-        %BLS12_381_R => A
-        ${_subFrBLS12381_AC / const.BLS12_381_R} => B        ; quotient
-        ${_subFrBLS12381_AC % const.BLS12_381_R} => C        ; residue
-        E :ARITH
+        ; NOTE: 2·BLS12_381_R < 2²⁵⁶ < 3·BLS12_381_R
 
-        ; 3] Check that the residue is lower than BLS12_381_R
-        A => B
-        C => A
-        1       :LT, RETURN
+        B => C ; save for later use
+
+        %BLS12_381_R => B
+        $ => A  :ADD ; It cannot overflow under the PRE condition and the previous NOTE
+
+        C => B
+        $ => C  :SUB, RETURN

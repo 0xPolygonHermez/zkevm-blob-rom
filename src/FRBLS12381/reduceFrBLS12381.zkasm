@@ -7,20 +7,10 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-VAR GLOBAL reduceFrBLS12381_tmp
-
 reduceFrBLS12381:
-        A       :MSTORE(reduceFrBLS12381_tmp)
-
-        ; 1] It must be satisfied that:
-        ; [BLS12_381_R]·[B / r] + [B % r] = [0]·2²⁵⁶ + E
-        %BLS12_381_R => A
-        ${mem.reduceFrBLS12381_tmp / const.BLS12_381_R} => B        ; quotient
-        ${mem.reduceFrBLS12381_tmp % const.BLS12_381_R} => C        ; residue
-        0n => D
-        $       :MLOAD(reduceFrBLS12381_tmp), ARITH
-
-        ; 2] Check the the residue is less than r
-        A => B
-        C => A
-        1       :LT, RETURN
+        ; A·1 + 0 = op (mod BLS12_381_R)
+        1 => B
+        0 => C
+        %BLS12_381_R => D
+        ${A % D} => E           :ARITH_MOD
+        E => A                  :RETURN

@@ -110,7 +110,12 @@ INCLUDE "./examplePol.ignore.zkasm"
         :CALL(polEvalFrBLS12381)
         37664663143961022959541445271911524365505350780049542875505087010599735428812n  :MLOAD(polEvalFrBLS12381_result)
 
+        :JMP(end)
 
+;@info function to force a failed assert
+failAssert:
+    1 => A
+    2               :ASSERT
 
 end:
 

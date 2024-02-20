@@ -8,22 +8,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 addFrBLS12381:
-        ; 1] Compute and check the sum over Z
-        ; A·[1] + C = [D]·2²⁵⁶ + [E]
+        ; A·1 + C = op (mod BLS12_381_R)
         1 => B
-        $${var _addFrBLS12381_AC = A + C}
-        ${_addFrBLS12381_AC >> 256} => D
-        ${_addFrBLS12381_AC & ((1 << 256) - 1)} => E :ARITH
-
-        ; 2] Check it over Fr, that is, it must be satisfied that:
-        ; [BLS12_381_R]·[(A+C) / r] + [(A+C) % r] = D·2²⁵⁶ + E
-        ; where C < BLS12_381_R
-        %BLS12_381_R => A
-        ${_addFrBLS12381_AC / const.BLS12_381_R} => B        ; quotient
-        ${_addFrBLS12381_AC % const.BLS12_381_R} => C        ; residue
-        E :ARITH
-
-        ; 3] Check that the residue is lower than BLS12_381_R
-        A => B
-        C => A
-        1       :LT, RETURN
+        %BLS12_381_R => D
+        ${(A + C) % D} => E     :ARITH_MOD
+        E => C                  :RETURN
