@@ -442,10 +442,10 @@ opINVALID:
 checkAndSaveFrom:
                          :JMP(opINVALID)
 
-INCLUDE "../src/FrBLS12381/reduceFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/addFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/subFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/mulFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/squareFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/invFrBLS12381.zkasm"
-INCLUDE "../src/FrBLS12381/expBy4096FrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/reduceFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/addFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/subFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/mulFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/squareFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/invFrBLS12381.zkasm"
+INCLUDE "../src/FRBLS12381/expBy4096FrBLS12381.zkasm"
