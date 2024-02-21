@@ -13,6 +13,13 @@ VAR GLOBAL expBy4096FrBLS12381_input_is_not_zero_nor_one
 
 VAR GLOBAL expBy4096FrBLS12381_RR
 
+; RESOURCES:
+; -------------------------------------------
+; PATH 1 input_is_0:           [steps: 7,  bin: 1]
+; PATH 2 input_is_1:           [steps: 9,  bin: 2]
+; PATH 3 input_is_not_0_nor_1: [steps: 80, bin: 2, arith: 12] <-- w.c.
+; -------------------------------------------
+
 expBy4096FrBLS12381:
         RR              :MSTORE(expBy4096FrBLS12381_RR)
 
@@ -41,7 +48,7 @@ expBy4096FrBLS12381_compute:
         ; Note that 4096 = 2^12, so computing A⁴⁰⁹⁶ consists of 12 squarings
 
         ; 1/12
-        :CALL(squareFrBLS12381)
+        :CALL(squareFrBLS12381) ; [steps: 5, bin: 0, arith: 1]
 
         ; 2/12
         :CALL(squareFrBLS12381)
