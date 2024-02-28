@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  PRE: z is in the range [0,BLS12_381_R) and all evals are set in polEvalFrBLS12381_pol_eval (including the case it is sparse)
+;;  PRE: pol_eval's and z are in the range [0,BLS12_381_R) and all the 4096 evals must be set in polEvalFrBLS12381_pol_eval[4096]
 ;; POST: The result is in the range [0,BLS12_381_R)
 ;;
 ;; polEvalFrBLS12381:
