@@ -13,8 +13,6 @@
 ;;       and ω is the 4096-th primitive root of unity in Fr
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; TODO: Create unit tests for helpers and call Francesc afterwise
-
 INCLUDE "./rootsOfUnity4096FrBLS12381.zkasm"
 
 VAR GLOBAL polEvalFrBLS12381_pol_eval[4096]
@@ -37,10 +35,13 @@ VAR GLOBAL polEvalFrBLS12381_RR
 ;               · z_is_not_one: [steps: 94, bin: 2, arith: 12]
 ; PATH 2 z_is_not_root: inital_exp_and_first_term       + 4096*i-th_term                          + last_mul_and_end             =
 ;                       [steps: 102, bin: 6, arith: 13] + 4096*[steps: 39-43, bin: 2-4, arith: 4] + [steps: 9, bin: 0, arith: 1] =
-;                                      [steps: 159.855-176.239, bin: 8.198-16.390, arith: 16.398] <-- w.c.
+;                                      [steps: 159.855-176.239, bin: 8.198-16.390, arith: 16.398]
+; PATH 3 z_is_not_root: PATH 2 + reduce_all = [steps: 159.855-176.239, bin: 8.198-16.390, arith: 16.398] + [steps: 20, bin: 1, arith: 2] + [steps: 53.237, bin: 4.095, arith: 4.095] =
+;                                      [steps: 213.112-229.496, bin: 12.294-20.486, arith: 20.495] <--- w.c.
 ; -------------------------------------------
 
 polEvalFrBLS12381:
+        ${dump(STEP,CNT_BINARY,CNT_ARITH)}
         RR              :MSTORE(polEvalFrBLS12381_RR)
 
         ; Reduce z to the range [0,BLS12_381_R) if necessary
@@ -48,6 +49,7 @@ polEvalFrBLS12381:
         %BLS12_381_R => B
         $               :LT, JMPC(polEvalFrBLS12381_check_index)
                         :CALL(reduceFrBLS12381) ; [steps: 5, bin: 0, arith: 1]
+        ; [steps: 10, bin: 1, arith: 1]
         A               :MSTORE(polEvalFrBLS12381_z)
 
 polEvalFrBLS12381_check_index:
@@ -56,13 +58,14 @@ polEvalFrBLS12381_check_index:
 
         ; Reduce pol_eval_i to the range [0,BLS12_381_R) if necessary
         RCX - 1 => RCX,E
-        $ => A          :MLOAD(polEvalFrBLS12381_pol_eval + E)
-        %BLS12_381_R => B
-                        :CALL(reduceFrBLS12381) ; [steps: 5, bin: 0, arith: 1]
+        $ => A          :MLOAD(polEvalFrBLS12381_pol_eval + E), CALL(reduceFrBLS12381) ; [steps: 5, bin: 0, arith: 1]
         RCX => E
         A               :MSTORE(polEvalFrBLS12381_pol_eval + E)
+        ; [steps: 20, bin: 1, arith: 2]
 
 polEvalFrBLS12381_reduce_evals:
+        ; w.c. loop -> 4095*[steps: 13, bin: 1, arith: 1] + 2*steps = [steps: 53.237, bin: 4.095, arith: 4.095]
+
         RCX + 1 => RCX,E
         4096 - RCX      :JMPZ(polEvalFrBLS12381_compute)
         $ => A          :MLOAD(polEvalFrBLS12381_pol_eval + E)
@@ -154,4 +157,5 @@ polEvalFrBLS12381_last_mul:
 
 polEvalFrBLS12381_end:
         $ => RR         :MLOAD(polEvalFrBLS12381_RR)
+        ${dump(STEP,CNT_BINARY,CNT_ARITH)}
                         :RETURN
