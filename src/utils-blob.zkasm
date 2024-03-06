@@ -1,0 +1,39 @@
+;@info function to force a failed assert
+failAssert:
+    1 => A
+    2               :ASSERT
+
+addBlobInputHash:
+        $ => HASHPOS                    :MLOAD(blobHashPos)
+        $ => B                          :MLOAD(isEIP4844),JMPNZ(addBlobInputHashP)
+        A                               :HASHK(1)
+        HASHPOS                         :MSTORE(blobHashPos)
+        C => HASHPOS                    :RETURN
+
+addBlobInputHashP:
+        A                               :HASHP(0)
+        HASHPOS                         :MSTORE(blobHashPos)
+        C => HASHPOS                    :RETURN
+
+addBatchAccInputHash:
+        $ => A                          :MLOAD(batchLen)
+        A - HASHPOS - D                 :JMPN(invalidBlob)
+        ${getBlobBytes(p,D)} => A
+        $${p = p + D}
+        A                               :HASHP(E)
+        C + D => C                      :RETURN
+
+checkBlobInputHash:
+        0 => HASHPOS
+        32 => D
+loopCheckBlobInputHash:
+        $ => B                          :HASHPLEN(0)
+        B - HASHPOS                     :JMPZ(finishCheckBlobHash)
+        B - HASHPOS                     :JMPN(finishCheckBlobHash)
+        $ => A                          :HASHP(0)
+        0x00000000000000000000000000000000000000000000000000000000000000FFn => B
+        $ => A                          :AND
+        A                               :JMPZ(loopCheckBlobInputHash,invalidBlob)
+finishCheckBlobHash:
+                                        :RETURN
+

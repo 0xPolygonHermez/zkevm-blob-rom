@@ -1,0 +1,41 @@
+; inputs
+VAR CTX oldBlobStateRoot
+VAR CTX oldBlobAccInputHash
+VAR CTX oldNumBlob
+VAR CTX oldStateRoot
+VAR CTX forkID
+
+; outputs
+VAR CTX newBlobStateRoot
+VAR CTX newBlobAccInputHash
+VAR CTX newNumBlob
+VAR CTX finalAccBatchHashData
+VAR CTX localExitRootFromBlob
+VAR CTX isInvalid
+
+; outputs exposed from blobAccInputHash
+VAR CTX timestampLimit
+VAR CTX lastL1InfoTreeRoot
+VAR CTX lastL1InfoTreeIdx
+
+; inputs blobAccInputHash
+VAR CTX sequencerAddr
+VAR CTX zkGasLimit
+VAR CTX type ; 0: standard calldata, 1: blob data, 2: forced blob
+VAR CTX z ; isEIP4844 = 1
+VAR CTX y ; isEIP4844 = 1
+VAR CTX blobL2HashData ; isEIP4844 = 0
+VAR CTX forcedHashData ; keccak(ger, blockhashL1, minTimestamp)
+
+; tools blob parse
+VAR CTX newBatchAccInputHash
+VAR CTX newLocalExitRootFromBlob
+
+VAR CTX blobDataLen
+VAR CTX blobHashPos
+VAR CTX blobHashDataId
+VAR CTX numBatches
+VAR CTX isEIP4844
+VAR CTX lastHashPIdUsed
+VAR CTX batchLen
+VAR CTX batchHashData
