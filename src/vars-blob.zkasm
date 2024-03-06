@@ -1,0 +1,49 @@
+; inputs
+VAR GLOBAL oldBlobStateRoot
+VAR GLOBAL oldBlobAccInputHash
+VAR GLOBAL oldNumBlob
+VAR GLOBAL oldStateRoot
+VAR GLOBAL forkID
+
+; outputs
+VAR GLOBAL newBlobStateRoot
+VAR GLOBAL newBlobAccInputHash
+VAR GLOBAL newNumBlob
+VAR GLOBAL finalAccBatchHashData
+VAR GLOBAL localExitRootFromBlob
+VAR GLOBAL isInvalid
+
+; outputs exposed from blobAccInputHash
+VAR GLOBAL timestampLimit
+VAR GLOBAL lastL1InfoTreeRoot
+VAR GLOBAL lastL1InfoTreeIndex
+
+; inputs blobAccInputHash
+VAR GLOBAL sequencerAddr
+VAR GLOBAL zkGasLimit
+VAR GLOBAL type ; 0: standard calldata, 1: blob data, 2: forced blob
+VAR GLOBAL y ; isEIP4844 = 1
+VAR GLOBAL blobL2HashData ; isEIP4844 = 0
+VAR GLOBAL forcedData
+VAR GLOBAL forcedHashData ; isEIP4844 = 0, keccak(ger, blockhashL1, minTimestamp)
+
+; tools blob parse
+VAR GLOBAL newBatchAccInputHash
+VAR GLOBAL newLocalExitRootFromBlob
+VAR GLOBAL tmpSR
+
+VAR GLOBAL blobDataLen
+VAR GLOBAL totalBodyLen
+VAR GLOBAL blobHashPos
+VAR GLOBAL blobHashDataId
+VAR GLOBAL numBatches
+VAR GLOBAL isEIP4844
+VAR GLOBAL lastHashPIdUsed
+VAR GLOBAL blobData_without_0[3968] ; (4096 * 32 bytes - 4096 bytes 0's) / 32 =  3968
+VAR GLOBAL indexPosBlobData
+VAR GLOBAL indexPosBlobDataWithout0
+VAR GLOBAL checkBlobDataPos
+
+VAR CTX batchLen
+VAR CTX batchHashToRead
+VAR CTX batchHashData
