@@ -5,17 +5,18 @@ failAssert:
 
 addBlobInputHash:
         $ => HASHPOS                    :MLOAD(blobHashPos)
-        $ => B                          :MLOAD(isEIP4844),JMPNZ(addBlobInputHashP)
         A                               :HASHK(1)
         HASHPOS                         :MSTORE(blobHashPos)
         C => HASHPOS                    :RETURN
 
 addBlobInputHashP:
+        $ => HASHPOS                    :MLOAD(blobHashPos)
         A                               :HASHP(0)
         HASHPOS                         :MSTORE(blobHashPos)
         C => HASHPOS                    :RETURN
 
 addBatchAccInputHash:
+        ; TODO CHECK BLOB LEN
         $ => A                          :MLOAD(batchLen)
         A - HASHPOS - D                 :JMPN(invalidBlob)
         ${getBlobBytes(p,D)} => A

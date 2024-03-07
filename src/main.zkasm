@@ -41,7 +41,7 @@ start:
         ${getBlobL2HashData()}          :MSTORE(blobL2HashData)
         ${getForcedHashData()}          :MSTORE(forcedHashData)
 
-        ${getBlobLen()}                 :MSTORE(blobDataLen)
+        ${getBlobLen()} => B            :MSTORE(blobDataLen)
 
 ;;;;;;;;;;;;;;;;;;
 ;; B - Check type input
@@ -51,7 +51,12 @@ start:
         A - 2                           :JMPN(blobData)
         A - 3                           :JMPN(forcedBlob)
                                         :JMP(invalidBlob)
+
+;;;;;;;;;;;;;;;;;;
+;; B.2 - Type 1
+;;;;;;;;;;;;;;;;;;
 blobData:
+        %BYTES_ETH_BLOB_DATA - B        :JMPN(invalidBlob)
         1                               :MSTORE(isEIP4844)
         1                               :MSTORE(lastHashPIdUsed)
                                         :JMP(computeBlobAccInputHash)
@@ -61,6 +66,7 @@ blobData:
 ;;;;;;;;;;;;;;;;;;
 standarCalldata:
 forcedBlob:
+        %MAX_BYTES_ZK_BLOB_DATA - B     :JMPN(invalidBlob)
         0                               :MSTORE(isEIP4844)
         0                               :MSTORE(lastHashPIdUsed)
 
@@ -117,6 +123,9 @@ computeBlobAccInputHash:
 
         $ => C                          :HASHKDIGEST(0)
         C                               :MSTORE(newAccBlobInputHash)
+
+        $ => A                          :MLOAD(isEIP4844)
+        A                               :JMPNZ(blobDataStart)
 
         ; Pointer to next RLP bytes to read
         0 => C
@@ -189,8 +198,8 @@ nextBatch:
         $ => B                          :MLOAD(numBatches)
         B + 1                           :MSTORE(numBatches)
         0 => B
-        E + 1 => E                      :MSTORE(lastHashPIdUsed),JMP(nonCompression)
-
+        E + 1 => E                      :MSTORE(lastHashPIdUsed)
+        $                               :MLOAD(isEIP4844),JMPZ(nonCompression, nonCompressionBlobData)
 
 invalidTypeCompression:
 invalidBlob:
@@ -201,20 +210,76 @@ invalidBlob:
                                         :JMP(finalizeExecution)
 
 endBlob:
-        $                               :MLOAD(isEIP4844),JMPNZ(endBlobData)
         $ => HASHPOS                    :MLOAD(blobHashPos)
         HASHPOS                         :HASHKLEN(1)
         $ => A                          :HASHKDIGEST(1)
         A                               :MSTORE(blobL2Hashdata)
                                         :JMP(finalizeBlob)
 
+
+
+blobDataStart:
+
+        0 => C
+        $ => E                          :MLOAD(lastHashPIdUsed)
+    
+        $${var p = 0}
+        1 => D
+        ; TODO CHECK BLOB LEN
+        ${getBlobBytes(p,D)} => A
+        $${p = p + D}
+        A                               :JMPNZ(invalidBlob)
+        C + D => C                      :CALL(addBlobInputHashP)
+        ; TODO CHECK BLOB LEN
+        ${getBlobBytes(p,D)} => A
+        $${p = p + D}
+        C + D => C                      :CALL(addBlobInputHashP)
+        A - 1                           :JMPN(nonCompressionBlobData)
+                                        :JMP(invalidTypeCompression)
+
+nonCompressionBlobData:
+        $ => A                          :MLOAD(blobDataLen)
+        A - C                           :JMPZ(endBlobData)
+        A - C                           :JMPN(invalidBlob)
+
+        4 => D
+        ; TODO CHECK BLOB LEN
+        ${getBlobBytes(p,D)} => A       :MSTORE(batchLen)
+        $${p = p + D}
+        C + D => C                      :CALL(addBlobInputHashP)
+
+        A - 1                           :JMPN(nextBatch)
+
+addData:
+        A - 32                          :JMPN(endData)
+        32 => D                         :CALL(addBatchAccInputHash)
+                                        :CALL(addBlobInputHashP)
+        A - 32 => A                     :JMP(addData)
+
+endData:
+        A                               :JMPZ(nextBatch)
+        A => D                          :CALL(addBatchAccInputHash)
+                                        :CALL(addBlobInputHashP)
+                                        :JMPZ(nextBatch)
+
 endBlobData:
         $ => HASHPOS                    :MLOAD(blobHashPos)
+        %BYTES_ETH_BLOB_DATA - C => B   :JMPZ(endAdd0sData)
+        32 => D
+
+add0sData:
+        B - 32                          :JMPN(finishAdd0sData)
+        0                               :HASHP(0)
+        B - D => B                      :JMP(add0sData)
+
+finishAdd0sData:
+        B => D
+        0                               :HASHP(0)
+
+endAdd0sData:
         HASHPOS                         :HASHPLEN(0)
         $ => A                          :HASHPDIGEST(0)
         A                               :MSTORE(z)
-                                        :CALL(checkBlobInputHash)
-
 
 finalizeBlob:
 ;;;;;;;;;;;;;;;;;;
@@ -251,7 +316,7 @@ finalizeBlob:
         $ => D                          :MLOAD(oldStateRootFromBlob)
         $ => E                          :MLOAD(localExitRootFromBlob)
         $ => HASHPOS                    :MLOAD(oldNumBatchFromBlob)
-        $ => GAS                        :MLOAD(isValid)
+        $ => GAS                        :MLOAD(isInvalid)
 
         finalizeExecution:
                                         :JMP(finalWait)
