@@ -25,7 +25,7 @@ VAR CTX type ; 0: standard calldata, 1: blob data, 2: forced blob
 VAR CTX z ; isEIP4844 = 1
 VAR CTX y ; isEIP4844 = 1
 VAR CTX blobL2HashData ; isEIP4844 = 0
-VAR CTX forcedHashData ; keccak(ger, blockhashL1, minTimestamp)
+VAR CTX forcedHashData ; isEIP4844 = 0, keccak(ger, blockhashL1, minTimestamp)
 
 ; tools blob parse
 VAR CTX newBatchAccInputHash
