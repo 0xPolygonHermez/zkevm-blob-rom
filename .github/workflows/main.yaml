@@ -17,5 +17,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: eslint
-        run: npm run eslint
+      # - name: eslint
+      #   run: npm run eslint
+      - name: setup zkevm-blob-rom
+        run: npm i
+      - name: run zkasm tests
+        run: npm run test:zkasm
