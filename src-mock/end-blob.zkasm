@@ -1,0 +1,4 @@
+finalWait:
+    ${beforeLast()}                                       :JMPN(finalWait)
+    ; Set all registers to 0 except inputs that are recovered by the SAVE instruction
+    0 => A, GAS, CTX   :RESTORE, JMP(start)

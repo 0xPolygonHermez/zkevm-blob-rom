@@ -1,0 +1,56 @@
+; inputs
+VAR GLOBAL oldBlobStateRoot
+VAR GLOBAL oldBlobAccInputHash
+VAR GLOBAL oldNumBlob
+VAR GLOBAL oldStateRoot
+VAR GLOBAL forkID
+
+; outputs
+VAR GLOBAL newBlobStateRoot
+VAR GLOBAL newBlobAccInputHash
+VAR GLOBAL newNumBlob
+VAR GLOBAL finalAccBatchHashData
+VAR GLOBAL localExitRootFromBlob
+VAR GLOBAL isInvalid
+
+; outputs exposed from blobAccInputHash
+VAR GLOBAL timestampLimit
+VAR GLOBAL lastL1InfoTreeRoot
+VAR GLOBAL lastL1InfoTreeIdx
+
+start:
+
+;;;;;;;;;;;;;;;;;;
+;; A - Load input variables
+;;;;;;;;;;;;;;;;;;
+        STEP => A
+        0                               :ASSERT ; Ensure it is the beginning of the execution
+
+        RCX                             :MSTORE(forkID)
+        B                               :MSTORE(oldBlobStateRoot)
+        C                               :MSTORE(oldBlobAccInputHash)
+        RR                              :MSTORE(oldNumBlob)
+        SR                              :MSTORE(oldStateRoot)
+
+;;;;;;;;;;;;;;;;;;
+;; B - Load output variables
+;;;;;;;;;;;;;;;;;;
+finalizeBlob:
+        SR                              :SAVE(B,C,D,E,RR,RCX)
+
+        ; Set output registers
+        $ => B                          :MLOAD(newBlobStateRoot)
+        $ => C                          :MLOAD(newBlobAccInputHash)
+        $ => GAS                        :MLOAD(newNumBlob)
+        $ => A                          :MLOAD(finalAccBatchHashData)
+        $ => E                          :MLOAD(localExitRootFromBlob)
+        $ => CTX                        :MLOAD(isInvalid)
+
+        $ => RR                         :MLOAD(timestampLimit)
+        $ => D                          :MLOAD(lastL1InfoTreeRoot)
+        $ => RCX                        :MLOAD(lastL1InfoTreeIdx)
+
+finalizeExecution:
+                                        :JMP(finalWait)
+
+INCLUDE "end-blob.zkasm"
