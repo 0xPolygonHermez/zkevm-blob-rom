@@ -41,7 +41,6 @@ VAR GLOBAL polEvalFrBLS12381_RR
 ; -------------------------------------------
 
 polEvalFrBLS12381:
-        ${dump(STEP,CNT_BINARY,CNT_ARITH)}
         RR              :MSTORE(polEvalFrBLS12381_RR)
 
         ; Reduce z to the range [0,BLS12_381_R) if necessary
@@ -157,5 +156,4 @@ polEvalFrBLS12381_last_mul:
 
 polEvalFrBLS12381_end:
         $ => RR         :MLOAD(polEvalFrBLS12381_RR)
-        ${dump(STEP,CNT_BINARY,CNT_ARITH)}
                         :RETURN

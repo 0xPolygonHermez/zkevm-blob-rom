@@ -5,9 +5,9 @@ const fs = require("fs");
 const path = require('path');
 const chalk = require('chalk');
 const zkasm = require('@0xpolygonhermez/zkasmcom');
-const smMain = require('@0xpolygonhermez/zkevm-proverjs/src/sm/sm_main/sm_main');
+const sm_main_blob = require('@0xpolygonhermez/zkevm-proverjs/src/sm/sm_main/sm_main');
 
-const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_input.json');
+const blob_empty_input = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/blob_empty_input.json');
 
 const { argv } = require('yargs')
     .usage("node run-tests-zkasm pathname")
@@ -58,6 +58,7 @@ async function runTest(pathTest, cmPols) {
         debug: true,
         stepsN: 8388608,
         assertOutputs: false,
+        blob: true,
     };
 
     // Add custom helpers
@@ -83,7 +84,7 @@ async function runTest(pathTest, cmPols) {
     try {
         console.log(chalk.blue('   --> start'), pathTest);
         const rom = await zkasm.compile(pathTest, null, configZkasm);
-        const result = await smMain.execute(cmPols.Main, emptyInput, rom, config);
+        const result = await sm_main_blob.execute(cmPols.Main, blob_empty_input, rom, config);
         console.log(chalk.green('   --> pass'), pathTest);
         if (argv.verbose) {
             console.log(chalk.blue('   --> verbose'));
