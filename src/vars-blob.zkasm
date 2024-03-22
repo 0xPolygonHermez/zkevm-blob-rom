@@ -27,10 +27,7 @@ VAR GLOBAL blobL2HashData ; isEIP4844 = 0
 VAR GLOBAL forcedHashData ; isEIP4844 = 0, keccak(ger, blockhashL1, minTimestamp)
 
 ; tools blob parse
-VAR GLOBAL newBatchAccInputHash
-VAR GLOBAL newLocalExitRootFromBlob
 VAR GLOBAL tmpSR
-
 VAR GLOBAL blobDataLen
 VAR GLOBAL totalBodyLen
 VAR GLOBAL blobHashPos

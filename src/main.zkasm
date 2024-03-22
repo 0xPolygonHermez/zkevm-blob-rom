@@ -52,7 +52,7 @@ start:
 
         ${getBlobLen()} => B            :MSTORE(blobDataLen)
 
-        ;$${eventLog(onStartBlob)}
+        $${eventLog(onStartBlob())}
 
         $ => SR                         :MLOAD(oldBlobStateRoot)
 
@@ -206,7 +206,7 @@ nextBatch:
         HASHPOS                         :MSTORE(blobHashPos)
         C => HASHPOS                    :HASHPLEN(E)
         $ => B                          :HASHPDIGEST(E)
-        ;$${eventLog(onAddBatch(E))}
+        $${eventLog(onAddBatch(E))}
         B                               :MSTORE(batchHashData)
         E + 1 => E                      :MSTORE(lastHashPIdUsed)
 
@@ -254,7 +254,7 @@ finalizeBlob:
         $                               :LT,JMPC(invalidZkGasLimit)
 
 finishBlob:
-        ;$${eventLog(onFinishBlob)}
+        $${eventLog(onFinishBlob())}
 
         ; safety check that the output root is indeed inside the range limit of 4 goldilocks fields elements
         SR => A                         :MSTORE(newBlobStateRoot)
