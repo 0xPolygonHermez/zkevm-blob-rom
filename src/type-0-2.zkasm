@@ -1,0 +1,39 @@
+;;;;;;;;;;;;;;;;;;
+;; D.0 - type 0 & 2: Prepare batchHashData & finalAccBatchHashData
+;;;;;;;;;;;;;;;;;;
+nonCompression:
+        $ => A                          :MLOAD(blobDataLen)
+        ; check if HASHPOS == blobDataLen --> finalizeBlob
+        A - HASHPOS                     :JMPZ(finalizeBlob)
+
+        $ => B                          :MLOAD(type)
+        B - 2                           :JMPNZ(addBatchData)
+        ; if type == 2 --> only one batch is supported
+        $ => B                          :MLOAD(numBatches)
+        1 - B                           :JMPZ(invalidBlob)
+
+addBatchData:
+        ; change CTX
+        $ => B                          :MLOAD(numBatches)
+        B + 1 => CTX
+        ; 4 bytes --> batch length
+        4 => D                          :CALL(addBlobInputHashK)
+        A                               :MSTORE(batchLen)
+        0 => C  ; position of batchData
+        A - 1                           :JMPN(nonCompression) ; if batchLen == 0 --> no finalAccBatchHashData
+        
+; loop bytes from blolbData to batchData
+addData:
+        A                               :JMPZ(nextBatch)
+        A - 32                          :JMPN(endData),MSTORE(batchHashToRead)
+        ;add blobL2Hashdata
+        32 => D                         :CALL(addBlobInputHashK)
+        ;add batchHashData
+                                        :CALL(addBatchInputHash)
+        $ => A                          :MLOAD(batchHashToRead),JMP(addData)
+
+; last bytes
+endData:
+        A => D                          :CALL(addBlobInputHashK)
+                                        :CALL(addBatchInputHash)
+                                        :JMP(nextBatch)
