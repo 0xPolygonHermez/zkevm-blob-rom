@@ -24,7 +24,6 @@ VAR GLOBAL zkGasLimit
 VAR GLOBAL type ; 0: standard calldata, 1: blob data, 2: forced blob
 VAR GLOBAL y ; isEIP4844 = 1
 VAR GLOBAL blobL2HashData ; isEIP4844 = 0
-VAR GLOBAL forcedData
 VAR GLOBAL forcedHashData ; isEIP4844 = 0, keccak(ger, blockhashL1, minTimestamp)
 
 ; tools blob parse

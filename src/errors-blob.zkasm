@@ -1,0 +1,22 @@
+invalidTypeCompression:
+    ;$${eventLog(onError, error_invalid_compression_type)}   :JMP(invalidBlob)
+invalidParsing:
+    ;$${eventLog(onError, error_invalid_parsing)}             :JMP(invalidBlob)
+invalidMSBByte:
+    ;$${eventLog(onError, error_invalid_msb_byte)}           :JMP(invalidBlob)
+invalidZkGasLimit:
+    ;$${eventLog(onError, error_invalid_zkgaslimit)}         :JMP(invalidBlob)
+invalidBlobType:
+    ;$${eventLog(onError, error_invalid_blob_type)}          :JMP(invalidBlob)
+invalidBlob:
+        1                               :MSTORE(isInvalid)
+        0                               :MSTORE(finalAccBatchHashData)
+        SR                              :MSTORE(tmpSR)
+        $ => SR                         :MLOAD(oldStateRoot)
+        %ADDRESS_GLOBAL_EXIT_ROOT_MANAGER_L2  => A
+        %SMT_KEY_SC_STORAGE => B
+        %LOCAL_EXIT_ROOT_STORAGE_POS => C
+        $ => A                          :SLOAD
+        A                               :MSTORE(newLocalExitRootFromBlob)
+        $ => SR                         :MLOAD(tmpSR)
+                                        :JMP(finishBlob)
