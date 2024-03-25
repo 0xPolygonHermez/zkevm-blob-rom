@@ -7,7 +7,7 @@ const chalk = require('chalk');
 const zkasm = require('@0xpolygonhermez/zkasmcom');
 const sm_main_blob = require('@0xpolygonhermez/zkevm-proverjs/src/sm/sm_main/sm_main');
 
-const blob_empty_input = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/blob_empty_input.json');
+const blob_empty_input = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/input_executor_blob.json');
 
 const { argv } = require('yargs')
     .usage("node run-tests-zkasm pathname")
@@ -59,6 +59,9 @@ async function runTest(pathTest, cmPols) {
         stepsN: 8388608,
         assertOutputs: false,
         blob: true,
+        debugInfo: {
+            inputName: 'input',
+        },
     };
 
     // Add custom helpers
