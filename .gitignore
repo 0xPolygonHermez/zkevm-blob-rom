@@ -141,3 +141,6 @@ package-lock.json
 
 # temporal files
 tmp
+
+# parallel tests
+tools/parallel-testing/parallel-tests
