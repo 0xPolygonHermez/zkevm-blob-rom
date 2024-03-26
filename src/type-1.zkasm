@@ -102,11 +102,8 @@ finalizeBlobData:
         C + 1 => C
         ; first byte compression type
         $ => A                          :MLOAD(blobData_without_0+E)
-        ;E + 1 => E
-        ;$ => B                          :MLOAD(blobData_without_0+E)
-        ;28 => D
-        ;$ => A                          :MEM_ALIGN_RD,CALL(SHRarith)
-                                        :CALL(SHRarith)
+        28 => D
+        $ => A                          :MEM_ALIGN_RD,CALL(SHRarith)
         A                               :MSTORE(totalBodyLen)
         ; 4 bytes blobLen        
         C + 4 => C                      :MSTORE(checkBlobDataPos)
