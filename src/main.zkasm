@@ -231,7 +231,7 @@ nextBatch:
         HASHPOS                         :HASHPLEN(E)
         $ => B                          :HASHPDIGEST(E)
         B                               :MSTORE(finalAccBatchHashData)
-
+        
         ; update numBatches + 1
         $ => B                          :MLOAD(numBatches)
         B + 1                           :MSTORE(numBatches)
@@ -240,7 +240,7 @@ nextBatch:
 
         ; update last Id hashP used
         E + 1 => E                      :MSTORE(lastHashPIdUsed)
-        $                               :MLOAD(isEIP4844),JMPZ(nonCompression, initReadBatch)
+        $                               :MLOAD(isEIP4844),JMPZ(nonCompression, readBatchDataLen)
 
 ;;;;;;;;;;;;;;;;;;
 ;; E. Finalize execution
