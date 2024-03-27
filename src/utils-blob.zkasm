@@ -25,43 +25,6 @@ addBatchInputHash:
         $ => HASHPOS                    :MLOAD(blobHashPos)
         C + D => C                      :RETURN
 
-; @info Shift right D bytes to A
-; @in A
-; @in D
-; @out A - A >> (8*D) => A
-
-SHRarith:
-    31 - D      :JMPN(SHRarith_32)
-    D           :JMPZ(SHRarith_0)
-    32 - D => C :SAVE(B,C,D,E,RCX,RR)
-    A => B
-    0 => A
-    $ => A      :MEM_ALIGN_RD
-                :RESTORE, RETURN
-
-SHRarith_32:
-    0 => A      :RETURN
-SHRarith_0:
-                :RETURN
-
-; @info Shift left D bytes to A
-; @in A
-; @in D
-; @out A - A << (8*D) => A
-
-
-SHLarith:
-    31 - D      :JMPN(SHLarith_32)
-    D => C      :SAVE(B,C,D,E,RCX,RR),JMPZ(SHLarith_0)
-    0 => B
-    $ => A      :MEM_ALIGN_RD
-                :RESTORE, RETURN
-
-SHLarith_32:
-    0 => A      :RETURN
-SHLarith_0:
-                :RESTORE, RETURN
-
 
 VAR GLOBAL tmpVarAArith
 VAR GLOBAL tmpVarBArith

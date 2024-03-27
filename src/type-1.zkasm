@@ -48,6 +48,7 @@ callAndAssert:
         $ => B                          :MLOAD(y)
         B                               :ASSERT
 
+; add batchData to batchHashData = LinearPoseidon(batchData)
         0 => B,RR
         31 - 1 - 4 => RCX
         ; reading type
@@ -55,7 +56,7 @@ callAndAssert:
         1 + 128 * 1 => C
         $ => C                          :MEM_ALIGN_RD
 
-        ; getting totalBatchData
+        ; getting totalBodyLen
         2 + 128 * 4 => C
         $                               :MEM_ALIGN_RD,MSTORE(totalBodyLen)
 
@@ -65,13 +66,13 @@ callAndAssert:
         ; D = batch data len
 
 readBatchDataLen:
-        ; update ctx + 1
-        $ => B                          :MLOAD(numBatches)
-        B + 1 => CTX
-        $ => C                          :MLOAD(totalBodyLen)
-        $ => B                          :MLOAD(blobDataProcessed)
-        ; check blobDataProcessed == totalBodyLen + 1 byte type compression + 4 bytes blobLen --> final
-        B - C                           :JMPZ(finalizeBlob)
+        ; check blobDataProcessed == totalBodyLen > final
+        $ => B                          :MLOAD(blobDataProcessed)       
+        B - totalBodyLen                :JMPZ(finalizeBlob)
+
+        ; update ctx + 1     
+        $ + 1 => CTX                    :F_MLOAD(numBatches)
+
         0 => HASHPOS, B
         32 - RCX + 128 * 4  => C        :JMP_EQ(32+128*4,readBytesBatchDataLenOnTop)
 
