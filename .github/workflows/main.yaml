@@ -20,6 +20,16 @@ jobs:
       # - name: eslint
       #   run: npm run eslint
       - name: setup zkevm-blob-rom
-        run: npm i
+        run: |
+          npm i
+          npm run build
       - name: run zkasm tests
         run: npm run test:zkasm
+      - name: Generate tests
+        run: |
+          npm run test:gen
+      - name: Run tests
+        run: |
+          export NUM_CPUS=1
+          npm run test:start
+          sh tools/parallel-testing/checker.sh

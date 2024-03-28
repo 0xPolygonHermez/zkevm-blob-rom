@@ -1,4 +1,4 @@
-const { F1Field } = require("ffjavascript");
+const { Scalar, F1Field } = require("ffjavascript");
 const rootsOfUnity4096 = require("./rootsOfUnity4096.json");
 const {
     scalar2fea
