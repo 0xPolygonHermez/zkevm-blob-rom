@@ -79,7 +79,7 @@ readBatchDataLen:
         ; read 4 bytes, if there are not enought bytes it's filled with zero of m1(B)
         $ => D                          :MEM_ALIGN_RD
         RCX - 4 => RCX                  :JMP_LE(0, readRemainingBatchDataLen,readBatchData)
-                
+
 ; all batchlen it's at begining of memory
 readBytesBatchDataLenOnTop:
         RR + 1 => RR
@@ -87,7 +87,7 @@ readBytesBatchDataLenOnTop:
         ; offset = 1, len = 4 bytes
         1 + 128 * 4 => C
         $ => D                          :MEM_ALIGN_RD
-        31 - 4 => RCX                   :JMP(readBatchData)
+                31 - 4 => RCX                   :JMP(readBatchData)
     
 ; read rest of bytes of batchDataLen
 readRemainingBatchDataLen:
@@ -97,7 +97,7 @@ readRemainingBatchDataLen:
         1 - 128 * RCX + 31 * 128  => C   
         $ => C                          :MEM_ALIGN_RD
         D + C => D
-
+        
 ; check if A has pending bytes, this bytes belongs to current BatchData
 ; three posibilities:
 ;   batchDataLen (D) === 0
@@ -132,6 +132,7 @@ loopHash31BytesOfBatchData:
 
 ; hash the last bytes of batch
 hashLastBytesOfBatchData:
+        31 - D => RCX
         1 + 128 * D  => C               :JMP_EQ(1, hashBatchDataEnd)
         RR + 1 => RR
         $ => A                          :MLOAD(polEvalFrBLS12381_pol_eval[RR])
