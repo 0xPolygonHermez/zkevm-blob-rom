@@ -70,45 +70,34 @@ start:
         %INDEX_ACC_BLOB_INPUT_HASH_K => E
 
         32 => D
-        $ => A                          :MLOAD(oldBlobAccInputHash)
-        A                               :HASHK(E)
+        ${mem.oldBlobAccInputHash}      :HASHK(E),MLOAD(oldBlobAccInputHash)
 
         4 => D
-        $ => A                          :MLOAD(lastL1InfoTreeIndex)
-        A                               :HASHK(E)
+        ${mem.lastL1InfoTreeIndex}      :HASHK(E),MLOAD(lastL1InfoTreeIndex)
 
         32 => D
-        $ => A                          :MLOAD(lastL1InfoTreeRoot)
-        A                               :HASHK(E)
+        ${mem.lastL1InfoTreeRoot}       :HASHK(E),MLOAD(lastL1InfoTreeRoot)
 
         8 => D
-        $ => A                          :MLOAD(timestampLimit)
-        A                               :HASHK(E)
+        ${mem.timestampLimit}           :HASHK(E),MLOAD(timestampLimit)
 
         20 => D
-        $ => A                          :MLOAD(sequencerAddr)
-        A                               :HASHK(E)
+        ${mem.sequencerAddr}            :HASHK(E),MLOAD(sequencerAddr)
 
         8 => D
-        $ => A                          :MLOAD(zkGasLimit)
-        A                               :HASHK(E)
+        ${mem.zkGasLimit}               :HASHK(E),MLOAD(zkGasLimit)
 
         1 => D
-        $ => A                          :MLOAD(type)
-        A                               :HASHK(E)
+        ${mem.type}                     :HASHK(E),MLOAD(type)
 
         32 => D
-        $ => A                          :MLOAD(polEvalFrBLS12381_z)
-        A                               :HASHK(E)
+        ${mem.polEvalFrBLS12381_z}      :HASHK(E),MLOAD(polEvalFrBLS12381_z)
 
-        $ => A                          :MLOAD(y)
-        A                               :HASHK(E)
+        ${mem.y}                        :HASHK(E),MLOAD(y)
 
-        $ => A                          :MLOAD(blobL2HashData)
-        A                               :HASHK(E)
+        ${mem.blobL2HashData}           :HASHK(E),MLOAD(blobL2HashData)
 
-        $ => A                          :MLOAD(forcedHashData)
-        A                               :HASHK(E)
+        ${mem.forcedHashData}           :HASHK(E),MLOAD(forcedHashData)
 
         ; finish newBlobAccInputHash
         HASHPOS                         :HASHKLEN(E)
@@ -163,7 +152,7 @@ forcedBlob:
         ; B == blobDataLen (getBlobLen())
         $ => A                          :MLOAD(forcedHashData)
         ; load forcedHashData to HASHK index 1
-        1 => E
+        %INDEX_BLOB_L2_HASH_K_DATA => E
         A                               :HASHKDIGEST(E)
 
 type0and2:
@@ -179,10 +168,9 @@ type0and2:
 computeBatchHashData:
         0 => HASHPOS ; HASHPOS of blobData
 
-        ; if type = 1
+        ; if isEIP4844 = 1
         ; D.1 ---> blobDataStart
-        $ => A                          :MLOAD(isEIP4844)
-        A                               :JMPNZ(blobDataStart)
+        $                               :F_MLOAD(isEIP4844),JMPNZ(blobDataStart)
 
         ; if type = 0 || type = 2
         $ => E                          :MLOAD(lastHashPIdUsed)
@@ -194,8 +182,7 @@ computeBatchHashData:
         4 => D                          :CALL(addBlobInputHashK) ; A = totalBodyLen
         ; blobDataLen = totalBody + compression type (1 byte) + totalBodyLen (4 bytes)
         A                               :MSTORE(totalBodyLen)
-        $ => D                          :MLOAD(blobDataLen)
-        D - A - 5                       :JMPNZ(invalidParsing)
+        blobDataLen - A - 5             :JMPNZ(invalidParsing)
         ; if type = 0 & type = 2 and compression type = 0
         ; D.0 ---> nonCompression
         B - 1                           :JMPN(nonCompression)
@@ -215,32 +202,29 @@ nextBatch:
         0 => HASHPOS
 
         32 => D
-        $ => B                          :MLOAD(finalAccBatchHashData)
-        B                               :HASHP(E)
-        $ => B                          :MLOAD(batchHashData)
-        B                               :HASHP(E)
+        ${mem.finalAccBatchHashData}    :HASHP(E),MLOAD(finalAccBatchHashData)
+        ${mem.batchHashData}            :HASHP(E),MLOAD(batchHashData)
 
         20 => D
-        $ => B                          :MLOAD(sequencerAddr)
-        B                               :HASHP(E)
+        ${mem.sequencerAddr}            :HASHP(E),MLOAD(sequencerAddr)
 
         32 => D
-        $ => B                          :MLOAD(forcedHashData)
-        B                               :HASHP(E)
+        ${mem.forcedHashData}           :HASHP(E),MLOAD(forcedHashData)
 
         HASHPOS                         :HASHPLEN(E)
         $ => B                          :HASHPDIGEST(E)
         B                               :MSTORE(finalAccBatchHashData)
-
+        
         ; update numBatches + 1
-        $ => B                          :MLOAD(numBatches)
+        $ => B                          :F_MLOAD(numBatches)
         B + 1                           :MSTORE(numBatches)
+
         0 => B
         $ => HASHPOS                    :MLOAD(blobHashPos)
 
         ; update last Id hashP used
         E + 1 => E                      :MSTORE(lastHashPIdUsed)
-        $                               :MLOAD(isEIP4844),JMPZ(nonCompression, initReadBatch)
+        $                               :MLOAD(isEIP4844),JMPZ(nonCompression, readBatchDataLen)
 
 ;;;;;;;;;;;;;;;;;;
 ;; E. Finalize execution

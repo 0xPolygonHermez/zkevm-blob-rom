@@ -9,7 +9,7 @@ const { compile } = require('pilcom');
 const buildPoseidon = require('@0xpolygonhermez/zkevm-commonjs').getPoseidon;
 
 const folderPaths = [
-    '../../node_modules/@0xpolygonhermez/zkevm-testvectors/inputs-executor-blob/calldata',
+    '../../node_modules/@0xpolygonhermez/zkevm-testvectors/inputs-executor-blob',
 ];
 
 const fileCachePil = path.join(__dirname, '../../node_modules/@0xpolygonhermez/zkevm-proverjs/cache-main-blob-pil.json');

@@ -14,8 +14,8 @@ nonCompression:
 
 addBatchData:
         ; change CTX
-        $ => B                          :MLOAD(numBatches)
-        B + 1 => CTX
+        $ + 1 => CTX                    :F_MLOAD(numBatches)
+
         ; 4 bytes --> batch length
         4 => D                          :CALL(addBlobInputHashK)
         A                               :MSTORE(batchLen)
